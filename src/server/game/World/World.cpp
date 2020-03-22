@@ -1517,6 +1517,9 @@ void World::LoadConfigSettings(bool reload)
     }
     m_bool_configs[CONFIG_ENABLED_RESTART] = sConfigMgr->GetBoolDefault("EnabledRestart", false);
 
+    // Img_chanel
+    m_bool_configs[CONFIG_IMG_CHANEL] = sConfigMgr->GetBoolDefault("Img.Chanel", false);
+
     // prevent character rename on character customization
     m_bool_configs[CONFIG_PREVENT_RENAME_CUSTOMIZATION] = sConfigMgr->GetBoolDefault("PreventRenameCharacterOnCustomization", false);
 

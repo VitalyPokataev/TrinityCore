@@ -4096,9 +4096,15 @@ Server.Auto.RestartHour = 4
 #	EnabledRestart
 #	Description: Enabled server restart.
 #	Default:	false - (Disabled)
-#			true - (Enabled, server restarted)
+#				true - (Enabled, server restarted)
 
 EnabledRestart = false
+
+#	Img chanel horde/aliance in LFG
+#	Default:	false - (Disabled)
+#				true - (Enabled, img horde/aliance in LFG) 
+
+Img.Chanel = false
 
 #
 ###################################################################################################
