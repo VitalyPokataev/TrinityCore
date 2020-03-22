@@ -17,10 +17,12 @@
 
 // This is where scripts' loading functions should be declared:
 void AddSC_channel_factions();
+void AddSC_TeLe_gossip_codebox();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddCustomScripts()
 {
 	AddSC_channel_factions();
+	AddSC_TeLe_gossip_codebox();
 }
