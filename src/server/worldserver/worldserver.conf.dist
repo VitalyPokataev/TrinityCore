@@ -4086,4 +4086,19 @@ Metric.OverallStatusInterval = 1
 LFG.Location.All = 0
 
 #
+#	Server.Auto.RestartHour
+#	Description: Hour of the day when the server restarts.
+#	Range:		0-23
+#	Default:	4 - (04:00 AM)
+
+Server.Auto.RestartHour = 4
+
+#	EnabledRestart
+#	Description: Enabled server restart.
+#	Default:	false - (Disabled)
+#			true - (Enabled, server restarted)
+
+EnabledRestart = false
+
+#
 ###################################################################################################

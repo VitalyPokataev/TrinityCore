@@ -174,6 +174,7 @@ enum WorldBoolConfigs
     CONFIG_HOTSWAP_INSTALL_ENABLED,
     CONFIG_HOTSWAP_PREFIX_CORRECTION_ENABLED,
     CONFIG_LFG_LOCATION_ALL, // Player can join LFG anywhere
+    CONFIG_ENABLED_RESTART,
     CONFIG_PREVENT_RENAME_CUSTOMIZATION,
     CONFIG_CACHE_DATA_QUERIES,
     CONFIG_CHECK_GOBJECT_LOS,
@@ -395,6 +396,7 @@ enum WorldIntConfigs
     CONFIG_RESPAWN_DYNAMICMINIMUM_GAMEOBJECT,
     CONFIG_RESPAWN_GUIDWARNING_FREQUENCY,
     CONFIG_SOCKET_TIMEOUTTIME_ACTIVE,
+    CONFIG_AUTO_SERVER_RESTART_HOUR,
     INT_CONFIG_VALUE_COUNT
 };
 
@@ -531,6 +533,7 @@ enum WorldStates
     WS_WEEKLY_QUEST_RESET_TIME  = 20002,                     // Next weekly quest reset time
     WS_BG_DAILY_RESET_TIME      = 20003,                     // Next daily BG reset time
     WS_CLEANING_FLAGS           = 20004,                     // Cleaning Flags
+    WS_AUTO_SERVER_RESTART_TIME = 20005,                     // Next server restart time
     WS_GUILD_DAILY_RESET_TIME   = 20006,                     // Next guild cap reset time
     WS_MONTHLY_QUEST_RESET_TIME = 20007,                     // Next monthly quest reset time
     WS_DAILY_QUEST_RESET_TIME   = 20008,                     // Next daily quest reset time
@@ -792,6 +795,8 @@ class TC_GAME_API World
         void InitRandomBGResetTime();
         void InitCalendarOldEventsDeletionTime();
         void InitGuildResetTime();
+	void InitServerAutoRestartTime();
+	void AutoRestartServer();
         void ResetRandomBG();
         void CalendarDeleteOldEvents();
         void ResetGuildCap();
@@ -852,6 +857,7 @@ class TC_GAME_API World
         time_t m_NextDailyQuestReset;
         time_t m_NextWeeklyQuestReset;
         time_t m_NextMonthlyQuestReset;
+	time_t m_NextServerRestart;
         time_t m_NextRandomBGReset;
         time_t m_NextCalendarOldEventsDeletionTime;
         time_t m_NextGuildReset;

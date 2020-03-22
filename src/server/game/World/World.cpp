@@ -1507,7 +1507,15 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_HOTSWAP_PREFIX_CORRECTION_ENABLED] = sConfigMgr->GetBoolDefault("HotSwap.EnablePrefixCorrection", true);
 
     // Player can join LFG anywhere
-    m_bool_configs[CONFIG_LFG_LOCATION_ALL] = sConfigMgr->GetBoolDefault("LFG.Location.All", true); 
+    m_bool_configs[CONFIG_LFG_LOCATION_ALL] = sConfigMgr->GetBoolDefault("LFG.Location.All", true);
+
+    // Autorestart
+    m_int_configs[CONFIG_AUTO_SERVER_RESTART_HOUR] = sConfigMgr->GetIntDefault("Server.Auto.RestartHour", 4);
+    if (m_int_configs[CONFIG_AUTO_SERVER_RESTART_HOUR] > 23)
+    {
+    	m_int_configs[CONFIG_AUTO_SERVER_RESTART_HOUR] = 4;
+    }
+    m_bool_configs[CONFIG_ENABLED_RESTART] = sConfigMgr->GetBoolDefault("EnabledRestart", false);
 
     // prevent character rename on character customization
     m_bool_configs[CONFIG_PREVENT_RENAME_CUSTOMIZATION] = sConfigMgr->GetBoolDefault("PreventRenameCharacterOnCustomization", false);
@@ -2184,6 +2192,9 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Calculate guild limitation(s) reset time...");
     InitGuildResetTime();
+
+    TC_LOG_INFO("server.loading", "Server auto restart time...");
+    InitServerAutoRestartTime();
 
     // Preload all cells, if required for the base maps
     if (sWorld->getBoolConfig(CONFIG_BASEMAP_LOAD_GRIDS))
@@ -3336,6 +3347,33 @@ void World::InitGuildResetTime()
         sWorld->setWorldState(WS_GUILD_DAILY_RESET_TIME, uint64(m_NextGuildReset));
 }
 
+void World::InitServerAutoRestartTime()
+{
+    time_t serverRestartTime = uint64(sWorld->getWorldState(WS_AUTO_SERVER_RESTART_TIME));
+    if (!serverRestartTime)
+        m_NextServerRestart = time_t(time(NULL));         // game time not yet init
+
+    // generate time by config
+    time_t curTime = time(NULL);
+    tm localTm = *localtime(&curTime);
+    localTm.tm_hour = getIntConfig(CONFIG_AUTO_SERVER_RESTART_HOUR);
+    localTm.tm_min = 0;
+    localTm.tm_sec = 0;
+
+    // current day reset time
+    time_t nextDayRestartTime = mktime(&localTm);
+
+    // next reset time before current moment
+    if (curTime >= nextDayRestartTime)
+        nextDayRestartTime += DAY;
+
+    // normalize reset time
+    m_NextServerRestart = serverRestartTime < curTime ? nextDayRestartTime - DAY : nextDayRestartTime;
+
+    if (!serverRestartTime)
+        sWorld->setWorldState(WS_AUTO_SERVER_RESTART_TIME, uint64(m_NextServerRestart));
+}
+
 void World::ResetEventSeasonalQuests(uint16 event_id)
 {
     TC_LOG_INFO("misc", "Seasonal quests reset for all characters.");
@@ -3380,6 +3418,19 @@ void World::ResetGuildCap()
     m_NextGuildReset = time_t(m_NextGuildReset + DAY);
     sWorld->setWorldState(WS_GUILD_DAILY_RESET_TIME, uint64(m_NextGuildReset));
     sGuildMgr->ResetTimes();
+}
+
+void World::AutoRestartServer()
+{
+    std::string announce;
+    announce = "|cffD63931[Server]:|r |cffFF8C00automatic server restart after 1 minute.|r\n";
+    sWorld->SendServerMessage(SERVER_MSG_STRING, announce.c_str());
+    TC_LOG_INFO("misc", "Automatic server restart..."); 
+
+    sWorld->ShutdownServ(60, SHUTDOWN_MASK_RESTART, RESTART_EXIT_CODE);
+
+    m_NextServerRestart = time_t(m_NextServerRestart + DAY);
+    sWorld->setWorldState(WS_AUTO_SERVER_RESTART_TIME, uint64(m_NextServerRestart));
 }
 
 void World::UpdateMaxSessionCounters()
